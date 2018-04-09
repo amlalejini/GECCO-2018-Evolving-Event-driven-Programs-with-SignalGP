@@ -1,0 +1,209 @@
+---
+title: 'Evolving Event-driven Programs with SignalGP: <br/> Statistics'
+output:
+  html_document: default
+  pdf_document: default
+---
+
+Here, we provide fully detailed statistical test results, including the R code used to generate them. Across experiments, we performed a Kruskal-Wallis rank sum test to determine if a set was significant, and if significant, we performed a post-hoc Dunn's test, applying a Bonferroni correction for multiple comparisons. See the paper for full context. 
+
+Each post-hoc Dunn's test was performed using the FSA package.
+```{r, echo=TRUE}
+library(FSA)
+```
+
+```{r, echo=FALSE}
+sig_thresh <- 0.05
+```
+We'll set our significance threshold to `r sig_thresh`.
+
+## Changing Environment Problem
+
+In this section, we give the statistical details for the Changing Environment Problem broken down by environment-size. 
+
+First, we'll load the fitness data. 
+```{r}
+ce_ff_data <-  read.csv("../data/chg_env/mt_final_fitness.csv")
+```
+
+A note about how treatments are named within the data: treatment names describe the parameters and their values used when running the experiment. Parameters and their values are adjacent in the name, and parameter-value combinations are separated by underscores. For example, ED1_AS1_ENV2_TSK0 indicates that event-driven (ED) signals were enabled (1), active sensors (AS) were enabled (1), and there were two environments states. In other words, ED1_AS1_ENV2_TSK0 indicates the two-state environment combined treatment. The trailing TSK0 can be ignored. 
+
+Okay, next we'll partition out different subsets of the data.
+```{r}
+# two-state environment 
+# -- overall data --
+ce_ff_data_2 <- ce_ff_data[grep("_ENV2_", ce_ff_data$treatment),]
+ce_ff_data_2 <- ce_ff_data_2[ce_ff_data_2$analysis == "fdom",]
+ce_ff_data_2$treatment <- relevel(ce_ff_data_2$treatment, ref="ED1_AS1_ENV2_TSK0")
+# -- teasing apart combined treatment data --
+ce_tff_data_2 <- ce_ff_data[grep("ED1_AS1_ENV2_", ce_ff_data$treatment),]
+ce_tff_data_2$treatment <- relevel(ce_tff_data_2$treatment, ref="ED1_AS1_ENV2_TSK0")
+
+# four-state environment
+# -- overall data --
+ce_ff_data_4 <- ce_ff_data[grep("_ENV4_", ce_ff_data$treatment),]
+ce_ff_data_4 <- ce_ff_data_4[ce_ff_data_4$analysis == "fdom",]
+ce_ff_data_4$treatment <- relevel(ce_ff_data_4$treatment, ref="ED1_AS1_ENV4_TSK0")
+# -- teasing apart combined treatment data --
+ce_tff_data_4 <- ce_ff_data[grep("ED1_AS1_ENV4_", ce_ff_data$treatment),]
+ce_tff_data_4$treatment <- relevel(ce_tff_data_4$treatment, ref="ED1_AS1_ENV4_TSK0")
+
+# eight-state environment
+# -- overall data --
+ce_ff_data_8 <- ce_ff_data[grep("_ENV8_", ce_ff_data$treatment),]
+ce_ff_data_8 <- ce_ff_data_8[ce_ff_data_8$analysis == "fdom",]
+ce_ff_data_8$treatment <- relevel(ce_ff_data_8$treatment, ref="ED1_AS1_ENV8_TSK0")
+# -- teasing apart combined treatment data --
+ce_tff_data_8 <- ce_ff_data[grep("ED1_AS1_ENV8_", ce_ff_data$treatment),]
+ce_tff_data_8$treatment <- relevel(ce_tff_data_8$treatment, ref="ED1_AS1_ENV8_TSK0")
+
+# sixteen-state environment
+# -- overall data --
+ce_ff_data_16 <- ce_ff_data[grep("_ENV16_", ce_ff_data$treatment),]
+ce_ff_data_16 <- ce_ff_data_16[ce_ff_data_16$analysis == "fdom",]
+ce_ff_data_16$treatment <- relevel(ce_ff_data_16$treatment, ref="ED1_AS1_ENV16_TSK0")
+# -- teasing apart combined treatment data --
+ce_tff_data_16 <- ce_ff_data[grep("ED1_AS1_ENV16_", ce_ff_data$treatment),]
+ce_tff_data_16$treatment <- relevel(ce_tff_data_16$treatment, ref="ED1_AS1_ENV16_TSK0")
+```
+
+### Two-state Environment
+#### Overall Results
+```{r,echo=TRUE}
+# Run the Kruskal-Wallis rank sum test
+kw_fit_ce_2 <- kruskal.test(fitness ~ treatment, data=ce_ff_data_2)
+kw_fit_ce_2
+```
+According to our Kruskal-Wallis rank sum test, at least one treatment is significantly different from the other treatments. Thus, we'll perform a post-hoc Dunn's test, applying a Bonferroni correction for multiple comparisons.
+
+```{r, echo=TRUE}
+# Run the post-hoc Dunn's test.
+dt_ce_2 <- dunnTest(fitness~treatment, data=ce_ff_data_2, method="bonferroni")
+dt_ce_2
+```
+
+
+#### Combined Treatment Re-evaluations
+```{r,echo=TRUE}
+# Run the Kruskal-Wallis rank sum test
+kw_ce_comb_2 <- kruskal.test(fitness ~ analysis, data=ce_tff_data_2)
+kw_ce_comb_2
+```
+According to our Kruskal-Wallis rank sum test, at least one treatment is significantly different from the other treatments. Thus, we'll perform a post-hoc Dunn's test, applying a Bonferroni correction for multiple comparisons.
+```{r, echo=TRUE}
+# Run the post-hoc Dunn's test.
+dt_ce_comb_2 <- dunnTest(fitness~analysis, data=ce_tff_data_2, method="bonferroni")
+dt_ce_comb_2
+```
+
+
+### Four-state Environment
+#### Overall Results
+```{r,echo=TRUE}
+# Run the Kruskal-Wallis rank sum test
+kw_fit_ce_4 <- kruskal.test(fitness ~ treatment, data=ce_ff_data_4)
+kw_fit_ce_4
+```
+According to our Kruskal-Wallis rank sum test, at least one treatment is significantly different from the other treatments. Thus, we'll perform a post-hoc Dunn's test, applying a Bonferroni correction for multiple comparisons.
+
+```{r, echo=TRUE}
+# Run the post-hoc Dunn's test.
+dt_ce_4 <- dunnTest(fitness~treatment, data=ce_ff_data_4, method="bonferroni")
+dt_ce_4
+```
+
+
+#### Combined Treatment Re-evaluations
+```{r,echo=TRUE}
+# Run the Kruskal-Wallis rank sum test
+kw_ce_comb_4 <- kruskal.test(fitness ~ analysis, data=ce_tff_data_4)
+kw_ce_comb_4
+```
+According to our Kruskal-Wallis rank sum test, at least one treatment is significantly different from the other treatments. Thus, we'll perform a post-hoc Dunn's test, applying a Bonferroni correction for multiple comparisons.
+```{r, echo=TRUE}
+# Run the post-hoc Dunn's test.
+dt_ce_comb_4 <- dunnTest(fitness~analysis, data=ce_tff_data_4, method="bonferroni")
+dt_ce_comb_4
+```
+
+
+### Eight-state Environment
+#### Overall Results
+```{r,echo=TRUE}
+# Run the Kruskal-Wallis rank sum test
+kw_fit_ce_8 <- kruskal.test(fitness ~ treatment, data=ce_ff_data_8)
+kw_fit_ce_8
+```
+According to our Kruskal-Wallis rank sum test, at least one treatment is significantly different from the other treatments. Thus, we'll perform a post-hoc Dunn's test, applying a Bonferroni correction for multiple comparisons.
+
+```{r, echo=TRUE}
+# Run the post-hoc Dunn's test.
+dt_ce_8 <- dunnTest(fitness~treatment, data=ce_ff_data_8, method="bonferroni")
+dt_ce_8
+```
+
+
+#### Combined Treatment Re-evaluations
+```{r,echo=TRUE}
+# Run the Kruskal-Wallis rank sum test
+kw_ce_comb_8 <- kruskal.test(fitness ~ analysis, data=ce_tff_data_8)
+kw_ce_comb_8
+```
+According to our Kruskal-Wallis rank sum test, at least one treatment is significantly different from the other treatments. Thus, we'll perform a post-hoc Dunn's test, applying a Bonferroni correction for multiple comparisons.
+```{r, echo=TRUE}
+# Run the post-hoc Dunn's test.
+dt_ce_comb_8 <- dunnTest(fitness~analysis, data=ce_tff_data_8, method="bonferroni")
+dt_ce_comb_8
+```
+
+
+### Sixteen-state Environment
+#### Overall Results
+```{r,echo=TRUE}
+# Run the Kruskal-Wallis rank sum test
+kw_fit_ce_16 <- kruskal.test(fitness ~ treatment, data=ce_ff_data_16)
+kw_fit_ce_16
+```
+According to our Kruskal-Wallis rank sum test, at least one treatment is significantly different from the other treatments. Thus, we'll perform a post-hoc Dunn's test, applying a Bonferroni correction for multiple comparisons.
+
+```{r, echo=TRUE}
+# Run the post-hoc Dunn's test.
+dt_ce_16 <- dunnTest(fitness~treatment, data=ce_ff_data_16, method="bonferroni")
+dt_ce_16
+```
+
+
+#### Combined Treatment Re-evaluations
+```{r,echo=TRUE}
+# Run the Kruskal-Wallis rank sum test
+kw_ce_comb_16 <- kruskal.test(fitness ~ analysis, data=ce_tff_data_16)
+kw_ce_comb_16
+```
+According to our Kruskal-Wallis rank sum test, at least one treatment is significantly different from the other treatments. Thus, we'll perform a post-hoc Dunn's test, applying a Bonferroni correction for multiple comparisons.
+```{r, echo=TRUE}
+# Run the post-hoc Dunn's test.
+dt_ce_comb_16 <- dunnTest(fitness~analysis, data=ce_tff_data_16, method="bonferroni")
+dt_ce_comb_16
+```
+
+## Distributed Leader Election Problem
+In this section, we give the statistical details for the distributed leader election problem. 
+
+First, we'll load the fitness data. 
+```{r}
+election_data <- read.csv("../data/election/final_fitness.csv")
+```
+
+```{r,echo=TRUE}
+# Run the Kruskal-Wallis rank sum test.
+elec_kw <- kruskal.test(max_fitness ~ treatment, data=election_data)
+elec_kw
+```
+
+```{r,echo=TRUE}
+# Run the post-hoc Dunn's test.
+elec_dt <- dunnTest(max_fitness~treatment, data=election_data, method="bonferroni")
+elec_dt
+```
+
+
