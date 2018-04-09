@@ -572,6 +572,7 @@ public:
   //   - Orientation
   static void Inst_RotCW(hardware_t & hw, const inst_t & inst);
   static void Inst_RotCCW(hardware_t & hw, const inst_t & inst);
+  static void Inst_RandomDir(hardware_t & hw, const inst_t & inst);
   static void Inst_GetDir(hardware_t & hw, const inst_t & inst);
   //   - Messaging
   static void Inst_SendMsgFacing(hardware_t & hw, const inst_t & inst);
@@ -636,6 +637,11 @@ void Experiment::Inst_RotCW(hardware_t & hw, const inst_t & inst) {
 
 void Experiment::Inst_RotCCW(hardware_t & hw, const inst_t & inst) {
   hw.SetTrait(TRAIT_ID__DIR, emp::Mod(hw.GetTrait(TRAIT_ID__DIR) + 1, deme_t::NUM_DIRS));
+}
+
+void Experiment::Inst_RandomDir(hardware_t & hw, const inst_t & inst) {
+  state_t & state = hw.GetCurState();
+  state.SetLocal(inst.args[0], hw.GetRandom().GetUInt(0, deme_t::NUM_DIRS));
 }
 
 void Experiment::Inst_GetDir(hardware_t & hw, const inst_t & inst) {
@@ -932,13 +938,15 @@ void Experiment::Config_HW() {
   inst_lib->AddInst("Pull", hardware_t::Inst_Pull, 2, "Shared memory Arg1 => Shared memory Arg2.");
   inst_lib->AddInst("Nop", hardware_t::Inst_Nop, 0, "No operation.");
   inst_lib->AddInst("Fork", Inst_Fork, 0, "Fork a new thread. Local memory contents of callee are loaded into forked thread's input memory.");
-  inst_lib->AddInst("Terminate", Inst_Terminate, 0, "Kill current thread.");
-  inst_lib->AddInst("Nand", Inst_Nand, 3, "WM[ARG3]=~(WM[ARG1]&WM[ARG2])");
+  // Terminate and Nand were not used in the Paper's experiments. 
+  // inst_lib->AddInst("Terminate", Inst_Terminate, 0, "Kill current thread.");
+  // inst_lib->AddInst("Nand", Inst_Nand, 3, "WM[ARG3]=~(WM[ARG1]&WM[ARG2])");
 
   // Add experiment-specific instructions.
   // - Orientation instructions
   inst_lib->AddInst("RotCW", Inst_RotCW, 0, "Rotate clockwise");
   inst_lib->AddInst("RotCCW", Inst_RotCCW, 0, "Rotate couter-clockwise");
+  inst_lib->AddInst("RandomDir", Inst_RandomDir, 1, "Local memory: Arg1 => RandomUInt([0:4)");
   inst_lib->AddInst("GetDir", Inst_GetDir, 0, "WM[ARG1]=CURRENT DIRECTION");
   // - Messaging instructions
   inst_lib->AddInst("SendMsg", Inst_SendMsgFacing, 0, "Send output memory as message event to faced neighbor.", emp::ScopeType::BASIC, 0, {"affinity"});
