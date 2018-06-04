@@ -304,11 +304,19 @@ protected:
 
   // Deliver message (event) to specified inbox. 
   // Make room by clearing out old messages (back of deque). 
-  void DeliverToInbox(size_t id, const event_t & event) {
+  void DeliverToInboxSTK(size_t id, const event_t & event) {
     emp_assert(id < inboxes.size());
     while (InboxFull(id)) inboxes[id].pop_back();
     inboxes[id].emplace_front(event);
   }  
+
+  // Deliver message (event).
+  // Inbox acts like a queue.
+  void DeliverToInbox(size_t id, const event_t & event) {
+    emp_assert(id < inboxes.size());
+    while (InboxFull(id)) inboxes[id].pop_front(); // Make room for new message in inbox. Remove oldest first.
+    inboxes[id].emplace_back(event);
+  }
 
   /// NOTE: Re-use inbox for costly event-driven messaging.
   void DelayDelivery(size_t id, const event_t & event) {
