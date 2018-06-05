@@ -16,6 +16,11 @@ A pre-print of this work can be found here: [https://arxiv.org/pdf/1804.05445.pd
 - We introduce SignalGP, a new GP technique designed to let evolution program using the [event-driven programming paradigm](https://en.wikipedia.org/wiki/Event-driven_programming).
 - We use SignalGP to experimentally demonstrate the value of evolving event-driven programs in domains where programs must interact heavily with the environment or with other agents/programs. 
 
+## What is SignalGP? 
+![SignalGP Cartoon](./media/sgp-cartoon.png)
+
+Better description coming...
+
 ## Experiment Source Code
 The source code and configs for the changing environment problem can be found here: [experiments/changing_environment](https://github.com/amlalejini/GECCO-2018-Evolving-Event-driven-Programs-with-SignalGP/tree/master/experiments/changing_environment).
 
