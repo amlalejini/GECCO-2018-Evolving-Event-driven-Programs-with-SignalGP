@@ -19,6 +19,7 @@ Relevant abbreviations:
 - EOF: Indicates the end of a function. 
 
 ### Table of default instructions
+
 | Instruction | # Arguments | Uses Tag? | Description |
 | :---        | :---:       | :---:     | :---        |
 | Content Cell  | Content Cell  | Content Cell  | Content Cell  |
