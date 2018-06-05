@@ -12,44 +12,48 @@ Here, we provide details on the default SignalGP instruction set used in this ex
 
 Relevant abbreviations:
 - `ARG1`, `ARG2`, `ARG3`: First, second, and third argument for an instruction.
-- `WM`: Indicates working memory. `WM[i]`: indicates accessing working memory at location `i`. 
-- `IM`: Indicates input memory. `IM[i]`: indicates accessing output memory at location `i`.
-- `OM`: Indicates output memory. `OM[i]`: indicates accessing output memory at location `i`. 
-- `SM`: Indicates shared memory. `SM[i]`: indicates accessing shared memory at location `i`.
+- `WM`: Indicates working memory. 
+  - `WM[i]`: indicates accessing working memory at location `i`. 
+- `IM`: Indicates input memory. 
+  - `IM[i]`: indicates accessing output memory at location `i`.
+- `OM`: Indicates output memory. 
+  - `OM[i]`: indicates accessing output memory at location `i`. 
+- `SM`: Indicates shared memory. 
+  - `SM[i]`: indicates accessing shared memory at location `i`.
 - `EOF`: Indicates the end of a function. 
+- `NOP`: Indicates no operation. (do nothing)
 
 ### Table of default instructions
 
 | Instruction | # Arguments | Uses Tag? | Description |
 | :---        | :---:       | :---:     | :---        |
-| Inc         | 1           | No        | `WM[ARG1] = WM[ARG1] + 1` | 
-| Dec         | 1           | No        | | 
-| Not         | 1           | No        | | 
-| Add         | 3           | No        | | 
-| Sub         | 3           | No        | | 
-| Mult        | 3           | No        | | 
-| Div         | 3           | No        | | 
-| Mod         | 3           | No        | | 
-| TestEqu     | 3           | No        | | 
-| TestNEqu    | 3           | No        | | 
-| TestLess    | 3           | No        | | 
-| If          | 1           | No        | | 
-| While       | 1           | No        | | 
-| Countdown   | 1           | No        | | 
-| Close       | 0           | No        | | 
-| Break       | 0           | No        | | 
-| Call        | 0           | Yes       | | 
-| Return      | 0           | No        | | 
-| Fork        | 0           | Yes       | | 
-| SetMem      | 2           | No        | | 
-| CopyMem     | 2           | No        | | 
-| SwapMem     | 2           | No        | | 
-| Input       | 2           | No        | | 
-| Output      | 2           | No        | | 
-| Commit      | 2           | No        | | 
-| Pull        | 2           | No        | | 
-| Nop         | 0           | No        | | 
-
+| `Inc`       | 1           | No        | `WM[ARG1] = WM[ARG1] + 1` | 
+| `Dec`       | 1           | No        | `WM[ARG1] = WM[ARG1] - 1` | 
+| `Not`       | 1           | No        | `WM[ARG1] = !WM[ARG1]` Logically toggle `WM[ARG1]` | 
+| `Add`       | 3           | No        | `WM[ARG3] = WM[ARG1] + WM[ARG2]` | 
+| `Sub`       | 3           | No        | `WM[ARG3] = WM[ARG1] - WM[ARG2]` | 
+| `Mult`      | 3           | No        | `WM[ARG3] = WM[ARG1] * WM[ARG2]` | 
+| `Div`       | 3           | No        | `WM[ARG3] = WM[ARG1] / WM[ARG2]` Safe; division by 0 is NOP. | 
+| `Mod`       | 3           | No        | `WM[ARG3] = WM[ARG1] % WM[ARG2]` Safe| 
+| `TestEqu`   | 3           | No        | `WM[ARG3] = (WM[ARG1] == WM[ARG2])` | 
+| `TestNEqu`  | 3           | No        | `WM[ARG3] = (WM[ARG1] != WM[ARG2])` | 
+| `TestLess`  | 3           | No        | `WM[ARG3] = (WM[ARG1] < WM[ARG2])` | 
+| `If`        | 1           | No        | `If WM[ARG1] != 0`, proceed; `else`, skip until next `Close` or `EOF` | 
+| `While`     | 1           | No        | `If WM[ARG1] != 0`, loop; `else`, skip until next `Close` or `EOF` | 
+| `Countdown` | 1           | No        | Same as `While`, but decrements `WM[ARG1]` | 
+| `Close`     | 0           | No        | Indicates end of looping or conditional instruction block | 
+| `Break`     | 0           | No        | Break out of current loop | 
+| `Call`      | 0           | Yes       | Call function referenced by tag | 
+| `Return`    | 0           | No        | Return from current function | 
+| `Fork`      | 0           | Yes       | Calls function referenced by tag on a new thread | 
+| `SetMem`    | 2           | No        | `WM[ARG1] = ARG2` | 
+| `CopyMem`   | 2           | No        | `WM[ARG1] = WM[ARG2]` | 
+| `SwapMem`   | 2           | No        | `Swap(WM[ARG1], WM[ARG2])` | 
+| `Input`     | 2           | No        | `WM[ARG2] = IM[ARG1]` | 
+| `Output`    | 2           | No        | `OM[ARG2] = WM[ARG1]` | 
+| `Commit`    | 2           | No        | `SM[ARG2] = WM[ARG1]` | 
+| `Pull`      | 2           | No        | `WM[ARG2] = SM[ARG1]` | 
+| `Nop`       | 0           | No        | `No-operation` | 
 
 ## Changing Environment Problem
 
