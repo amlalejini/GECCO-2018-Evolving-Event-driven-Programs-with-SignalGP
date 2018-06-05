@@ -1,7 +1,9 @@
 ---
-title: Config!
-description: Config details
+title: EXP-CONFIG
+layout: default
 ---
 
 Hello!
 ===
+
+Hi!
