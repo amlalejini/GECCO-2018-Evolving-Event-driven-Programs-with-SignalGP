@@ -26,7 +26,10 @@ Both problems are implemented in C++ using the [Empirical library](https://githu
 ## Data and Analyses
 The data for all of our experiments can be found here: [data/](data/).
 
-Coherent data analyses to come...
+The full statistical details along with a step-by-step (source code and all) walk-through can be found here: [analysis/data_analysis.html](analysis/data_analysis.html)
+
+## Updates Since Publication
+- **NOTE:** Since running this experiment (and submitting the associated paper), I've done a bit more parameter exploration with SignalGP. The performance of the event-driven and combined treatments suffered from an astronomically high tag mutation rate. In subsequent work, I've lowered the tag mutation rate, and SignalGP can easily solve the 16-state environment in 10K generations. The upside to conference deadlines is that they put deadlines on getting research done; the downside is that sometimes there isn't enough time to do proper parameter explorations on systems. (6/2018)
 
 ## References
 Lalejini, A., & Ofria, C. (2018). Evolving Event-driven Programs with SignalGP. In Proceedings of the Genetic and Evolutionary Computation Conference. ACM. https://doi.org/10.1145/3205455.3205523
