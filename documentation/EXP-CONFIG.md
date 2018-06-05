@@ -96,6 +96,134 @@ Instructions specific to the changing environment problem.
 | SetState14 | 0 | No | Set internal state to 14 |
 | SetState15 | 0 | No | Set internal state to 15 |
 
+### Environment-state Tag Associations
+In the event-driven and combined treatments for the changing environment problem, environmental changes produce signals that have environment-specific tags. These tags determine which of a program's functions (if any at all) will be run in response to the signal. 
+
+| Environment-state   | Tag (16-bit) |
+| :---: | :---: |
+| 0 | 0000000000000000 |
+| 1 | 1111111111111111 |
+| 2 | 1111000000001111 |
+| 3 | 0000111111110000 |
+| 4 | 1111000011110000 |
+| 5 | 0000111100001111 |
+| 6 | 0000000011111111 |
+| 7 | 1111111100000000 |
+| 8 | 0110011001100110 |
+| 9 | 1001100110011001 |
+| 10 | 1001011001101001 |
+| 11 | 0110100110010110 |
+| 12 | 0110011010011001 |
+| 13 | 1001100101100110 |
+| 14 | 1001011010010110 |
+| 15 | 0110100101101001 |
+
+For example, if the environment changes to state 2, an event with the 1111000000001111 tag will be generated. As a result, the function of the program being evaluated with the closest matching tag to 1111000000001111 will be triggered. 
+
+### Hand-coded Solutions
+Here, we give hand-coded SignalGP programs that solve the eight-state changing environment problem. 
+
+#### Event-driven Program
+The following program follows the event-driven paradigm and can perfectly solve the eight-state changing environment problem. 
+
+`Fn-` denotes the beginning of a function; the function's tag follows `Fn-`. All instructions below a function declaration up until the next function declaration belong to that function. Instructions may be followed by tags given in square brackets, and/or followed by arguments given in parentheses.
+
+```
+Fn−0000000000000000: 
+  SetState0
+
+Fn−1111111111111111: 
+  SetState1
+
+Fn−1111000000001111: 
+  SetState2
+
+Fn−0000111111110000: 
+  SetState3
+
+Fn−1111000011110000: 
+  SetState4
+
+Fn−0000111100001111: 
+  SetState5
+
+Fn−0000000011111111: 
+  SetState6
+
+```
+
+#### Imperative Program
+The following program follows the imperative paradigm. Note that this program cannot solve the changing environment problem perfectly because the resolution of environmental sensing is not fast enough to perfectly track environmental changes at the rate they occur.
+
+`Fn-` denotes the beginning of a function; the function's tag follows `Fn-`. All instructions below a function declaration up until the next function declaration belong to that function. Instructions may be followed by tags given in square brackets, and/or followed by arguments given in parentheses.
+
+```
+Fn−0000000000000000: 
+  SetState0
+  Fork[0000000000000001] 
+  Fork[0000000000000011] 
+  Fork[0000000000000111]  
+  Fork[0000000000001111] 
+  Fork[0000000000011111] 
+  Fork[0000000000111111]   
+  Fork[0000000001111111] 
+  Fork[0000000011111111] 
+  SetMem(0 ,1)
+  While(0) 
+    SenseEnvState0(1) 
+    If(1)
+      SetState0
+
+Fn−0000000000000001: 
+  SetMem(0 ,1)
+  While(0)
+    SenseEnvState1(1) 
+    If(1)
+      SetState1
+
+Fn−0000000000000011: 
+  SetMem(0 ,1) 
+  While(0)
+    SenseEnvState2(1) 
+    If(1)
+      SetState2
+
+Fn−0000000000000111: 
+  SetMem(0 ,1) 
+  While(0)
+    SenseEnvState3(1) 
+    If(1)
+      SetState3
+
+Fn−0000000000001111: 
+  SetMem(0 ,1) 
+  While(0)
+    SenseEnvState4(1) 
+    If(1)
+      SetState4
+
+Fn−0000000000011111: 
+  SetMem(0 ,1) 
+  While(0)
+    SenseEnvState5(1) 
+    If(1)
+      SetState5
+
+Fn−0000000000111111: 
+  SetMem(0 ,1) 
+  While(0)
+    SenseEnvState6(1) 
+    If(1)
+      SetState6
+
+Fn−0000000001111111: 
+  SetMem(0 ,1) 
+  While(0)
+    SenseEnvState7(1) 
+    If(1)
+      SetState7
+```
+
 ## Distributed Leader Election Problem
 
 ### Problem-specific Instructions
@@ -117,6 +245,69 @@ In the distributed leader election problem, each SignalGP agent in a distribute 
 | GetOpinion | 1 | No | `WM[ARG1]` = current vote |
 | SetOpinion | 1 | No | Set current vote to `WM[ARG1]` |
 
+### Hand-coded Solutions
+Here, we provide hand-coded SignalGP programs for the distributed leader election problem. Each of these programs can successfully reach consensus. 
+
+#### Event-driven solution
+```
+Fn−0000000000000000: 
+GetUID(0)
+SetOpinion(0) 
+SetMem(15 ,1) 
+While(15)
+  GetOpinion (0)
+  Output(0 ,0)
+  BroadcastMsg(0 ,0 ,0)[1111111111111111]
+Close
+
+Fn−1111111111111111: 
+  Input(0 ,1) 
+  GetOpinion(0) 
+  TestLess(1 ,0 ,2)
+  If(2) 
+    SetOpinion(1)
+```
+
+#### Imperative (fork-on-retrieve) solution
+```
+Fn−0000000000000000: 
+  GetUID(0) 
+  SetOpinion(0) 
+  SetMem(15 ,1) 
+  While(15)
+    GetOpinion(0)
+    Output(0 ,0)
+    BroadcastMsg(0 ,0 ,0)[1111111111111111] 
+    RetrieveMsg
+  Close
+
+Fn−1111111111111111: 
+  Input(0 ,1) 
+  GetOpinion(0) 
+  TestLess(1 ,0 ,2)
+  If(2) 
+    SetOpinion(1)
+```
+
+#### Imperative (copy-on-retrieve) solution
+```
+Fn−0000000000000000: 
+  GetUID(0) 
+  GetUID(1) 
+  SetOpinion (0) 
+  SetMem(15 ,1) 
+  While(15)
+    GetOpinion (0)
+    Output(0 ,0)
+    BroadcastMsg(0 ,0 ,0)[1111111111111111] 
+    RetrieveMsg
+    Input(0 ,1)
+    TestLess(1 ,0 ,2)
+    If (2) 
+      SetOpinion(1)
+    Close 
+  Close
+```
 
 ## References
 Lalejini, A., & Ofria, C. (2018). Evolving Event-driven Programs with SignalGP. In Proceedings of the Genetic and Evolutionary Computation Conference. ACM. https://doi.org/10.1145/3205455.3205523
