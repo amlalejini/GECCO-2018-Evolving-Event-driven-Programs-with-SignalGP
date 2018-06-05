@@ -15,16 +15,16 @@ A pre-print of this work can be found here: [https://arxiv.org/pdf/1804.05445.pd
 - We use SignalGP to experimentally demonstrate the value of evolving event-driven programs in domains where programs must interact heavily with the environment or with other agents/programs. 
 
 ## Experiment Source Code
-The source code and configs for the changing environment problem can be found here: [experiments/changing_environment](experiments/changing_environment).
+The source code and configs for the changing environment problem can be found here: [experiments/changing_environment](https://github.com/amlalejini/GECCO-2018-Evolving-Event-driven-Programs-with-SignalGP/tree/master/experiments/changing_environment).
 
-The source code and configs for the distributed leader election problem can be found here: [experiments/election](experiments/election).
+The source code and configs for the distributed leader election problem can be found here: [experiments/election](https://github.com/amlalejini/GECCO-2018-Evolving-Event-driven-Programs-with-SignalGP/tree/master/experiments/election).
 
 Both problems are implemented in C++ using the [Empirical library](https://github.com/devosoft/Empirical), which is required to compile and re-run the experiments. 
 
 **WARNING:** the Empirical library is under development, and as a result, it can often change in ways that may break the code used for the experiments used in this work. I make no promises that I will keep these problems up to date with the latest changes to the Empirical library. However, **I am more than happy to update the code upon request**. Just submit an issue/email me (amlalejini@gmail.com). 
 
 ## Data and Analyses
-The data for all of our experiments can be found here: [data/](data/).
+The data for all of our experiments can be found in this repository: [data/](https://github.com/amlalejini/GECCO-2018-Evolving-Event-driven-Programs-with-SignalGP/tree/master/data).
 
 The full statistical details along with a step-by-step (source code and all) walk-through can be found here: [analysis/data_analysis.html](analysis/data_analysis.html)
 
