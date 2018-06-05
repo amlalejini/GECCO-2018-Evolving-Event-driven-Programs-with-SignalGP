@@ -633,9 +633,95 @@ chgenv_s16_comb_dt
 
 ---
 
+
 ## Problem: Distributed Leader Election
+
 ### Description
+From our paper (Lalejini and Ofria, 2018):
+> In the distributed leader election problem, a network of agents must unanimously designate a single agent as leader. Agents are each given a unique identifer (UID). Initially, agents are only aware of their own UID and must communicate to resolve the UIDs of other agents. During an election, each agent may vote, and an election is successful if all votes converge to a single, consensus UID. 
+
+We evolved populations of homogeneous distributed systems of SignalGP agents where networks were configured as 5x5 toroidal grids, and agents could only interact with their four neighbors. Distrubed systems maximize their fitness by achieving consensus as quickly as possible and maintaining consensus for the duration of the evaluation (see paper for exact fitness function used). We reward partial solutions by taking into account valid votes and partial consensus at the end of an evaluation. 
+
+We evolved distributed systems in three treatments:
+
+1. one with event-driven messaging where messages were signals (events) that could trigger a SignalGP program function when received 
+2. imperative messaging with fork on message
+3. imperative messaging without fork on message
+
+Treatments 2 and 3 were imperative variants; see paper for exact details on the differences between the two. 
+
+We evolved 100 replicate populations (size of 400 distributed systems) of each treatment for 50,000 generations, starting from a simple ancestor program. 
+
+### Statistical Methods
+For every replicate across all treatments we extracted the program that produced the most fit distributed system after 50,000 generations of evolution. We compared the performances of evolved programs across treatments. For our analyses, we set our significance level, α, equal to 0.05. To determine if any of the treatments were significant within a set (_p_ < 0.05), we performed a Kruskal-Wallis rank sum test. For a set in which the Kruskal-Wallis test was significant, we performed a post-hoc Dunn's test, applying a Bonferroni correction for multiple comparisons. 
+
 ### Results
+
+Let's load the election results in using R. 
+
+```r
+election_data <- read.csv("../data/election/final_fitness.csv")
+election_data_overtime <- read.csv("../data/election/fitness_over_time.csv")
+```
+
+Visualize! 
+
+![](data_analysis_files/figure-html/unnamed-chunk-45-1.png)<!-- -->
+
+Let's also look at fitness over time. (colors on timeseries are paired with colors on boxplot)
+
+
+```
+## /anaconda3/lib/python3.6/site-packages/seaborn/timeseries.py:183: UserWarning: The tsplot function is deprecated and will be removed or replaced (in a substantially altered version) in a future release.
+##   warnings.warn(msg, UserWarning)
+```
+
+![](data_analysis_files/figure-html/unnamed-chunk-46-1.png)<!-- -->
+
+From the visualizations, it looks like the event-driven treatment outperforms (just a little) the imperative treatments. 
+
+First, we'll do a Kruskal-Wallis test to confirm that at least one of the treatments within the set is different from the others.
+
+```r
+elec_kw <- kruskal.test(max_fitness ~ treatment, data=election_data)
+elec_kw
+```
+
+```
+## 
+## 	Kruskal-Wallis rank sum test
+## 
+## data:  max_fitness by treatment
+## Kruskal-Wallis chi-squared = 103.25, df = 2, p-value < 2.2e-16
+```
+
+According to the Kruskal-Wallis test, at least one treatment is significantly different from the others. Next, we'll do a post-hoc Dunn's test, applying a Bonferroni correction for multiple comparisons.
+
+```r
+elec_dt <- dunnTest(max_fitness~treatment, data=election_data, method="bonferroni")
+elec_dt
+```
+
+```
+## Dunn (1964) Kruskal-Wallis multiple comparison
+```
+
+```
+##   p-values adjusted with the Bonferroni method.
+```
+
+```
+##                                          Comparison         Z      P.unadj
+## 1    EventDriven_MsgForking - Imperative_MsgForking  9.681599 3.610247e-22
+## 2 EventDriven_MsgForking - Imperative_MsgNonForking  7.512422 5.804340e-14
+## 3  Imperative_MsgForking - Imperative_MsgNonForking -2.169177 3.006924e-02
+##          P.adj
+## 1 1.083074e-21
+## 2 1.741302e-13
+## 3 9.020771e-02
+```
+
+According to our Dunn's test, the event-driven treatment produced programs that significantly outperformed those evolved in both imperative treatments. Note, all treatments produced programs able to solve the distrubed leader election problem (no surprise since this problem is well-studied and previous work has used imperative LGP to evolve solutions). The difference in performance has to do with the efficiency at which event-driven programs are able to communicate with one another, not needing to check for received messages. 
 
 ---
 
