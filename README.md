@@ -4,6 +4,20 @@
 This repository is associated with our 2018 GECCO submission, Evolving Event-Driven Programs with SignalGP (Lalejini and Ofria, 2018).
 A pre-print of this work can be found here: [https://arxiv.org/pdf/1804.05445.pdf](https://arxiv.org/pdf/1804.05445.pdf)
 
+**Repository Guide:**
+- [analysis/](https://github.com/amlalejini/GECCO-2018-Evolving-Event-driven-Programs-with-SignalGP/tree/master/analysis)
+  - This directory contains all analyses used in this work (a combination of Python Jupyter notebooks and R markdown documents). 
+- [data/](https://github.com/amlalejini/GECCO-2018-Evolving-Event-driven-Programs-with-SignalGP/tree/master/data)
+  - This directory contains the experimental data associated with this work. 
+- [documentation/](https://github.com/amlalejini/GECCO-2018-Evolving-Event-driven-Programs-with-SignalGP/tree/master/documentation)
+  - This directory contains misc. documentation/details associated with this work.
+- [experiments/](https://github.com/amlalejini/GECCO-2018-Evolving-Event-driven-Programs-with-SignalGP/tree/master/experiments)
+  - This directory contains the source code (C++) for all experiments associated with this work. 
+- [media/](https://github.com/amlalejini/GECCO-2018-Evolving-Event-driven-Programs-with-SignalGP/tree/master/media)
+  - This directory contains media (any images/videos) used by this repository's documentation.
+- [supplemental_material/](https://github.com/amlalejini/GECCO-2018-Evolving-Event-driven-Programs-with-SignalGP/tree/master/supplemental_material)
+  - This directory contains copies of the supplemental material associated with and referenced by the paper. 
+
 ### Authors
 - [Alexander Lalejini](http://lalejini.com)
 - [Charles Ofria](http://ofria.com) (PhD advisor extraordinaire)
@@ -30,10 +44,18 @@ Both problems are implemented in C++ using the [Empirical library](https://githu
 
 **WARNING:** the Empirical library is under development, and as a result, it can often change in ways that may break the code used for the experiments used in this work. I make no promises that I will keep these problems up to date with the latest changes to the Empirical library. However, **I am more than happy to update the code upon request**. Just submit an issue/email me (amlalejini@gmail.com). 
 
+## Experiment Configuration Details
+We give the SignalGP instruction set details, environment-state tags (for the changing environment problem), and hand-coded SignalGP program solutions to each problem here: [](). 
+
+Additionally, a .pdf version of the configuration details supplemental material can be found here: [supplemental_material/gecco-2018-signal-supp-methods.pdf](http://lalejini.com/GECCO-2018-Evolving-Event-driven-Programs-with-SignalGP/supplemental_material/gecco-2018-signal-supp-methods.pdf).
+
 ## Data and Analyses
 The data for all of our experiments can be found in this repository: [data/](https://github.com/amlalejini/GECCO-2018-Evolving-Event-driven-Programs-with-SignalGP/tree/master/data).
 
 The full statistical details along with a step-by-step (source code and all) walk-through can be found here: [analysis/data_analysis.html](http://lalejini.com/GECCO-2018-Evolving-Event-driven-Programs-with-SignalGP/analysis/data_analysis.html)
+
+## GECCO 2018 Presentation
+Link to my GECCO 2018 presentation slides to come. 
 
 ## Updates Since Publication
 - **NOTE:** Since running this experiment (and submitting the associated paper), I've done a bit more parameter exploration with SignalGP. The performance of the event-driven and combined treatments suffered from an astronomically high tag mutation rate (0.05 per-bit flip rate). In subsequent work, I've lowered the tag mutation rate (0.005 per-bit flip rate), and SignalGP can easily solve the 16-state environment in 10K generations. The upside to conference deadlines is that they put deadlines on getting research done; the downside is that sometimes there isn't enough time to do proper parameter explorations on systems. (6/2018)
