@@ -1,3 +1,5 @@
+[![DOI](https://zenodo.org/badge/128267891.svg)](https://zenodo.org/badge/latestdoi/128267891)
+
 ## Overview
 This repository is associated with our 2018 GECCO submission, Evolving Event-Driven Programs with SignalGP (Lalejini and Ofria, 2018).
 A pre-print of this work can be found here: [https://arxiv.org/pdf/1804.05445.pdf](https://arxiv.org/pdf/1804.05445.pdf)
