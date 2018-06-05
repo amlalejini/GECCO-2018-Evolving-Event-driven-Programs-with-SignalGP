@@ -45,7 +45,7 @@ Both problems are implemented in C++ using the [Empirical library](https://githu
 **WARNING:** the Empirical library is under development, and as a result, it can often change in ways that may break the code used for the experiments used in this work. I make no promises that I will keep these problems up to date with the latest changes to the Empirical library. However, **I am more than happy to update the code upon request**. Just submit an issue/email me (amlalejini@gmail.com). 
 
 ## Experiment Configuration Details
-We give the SignalGP instruction set details, environment-state tags (for the changing environment problem), and hand-coded SignalGP program solutions to each problem here: [](). 
+We give the SignalGP instruction set details, environment-state tags (for the changing environment problem), and hand-coded SignalGP program solutions to each problem [**here**](http://lalejini.com/GECCO-2018-Evolving-Event-driven-Programs-with-SignalGP/documentation/EXP-CONFIG). 
 
 Additionally, a .pdf version of the configuration details supplemental material can be found here: [supplemental_material/gecco-2018-signal-supp-methods.pdf](http://lalejini.com/GECCO-2018-Evolving-Event-driven-Programs-with-SignalGP/supplemental_material/gecco-2018-signal-supp-methods.pdf).
 
