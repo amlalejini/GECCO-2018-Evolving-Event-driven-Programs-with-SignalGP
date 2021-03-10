@@ -1,7 +1,7 @@
 ---
 title: "Data Analysis for Evolving Event-driven Programs with SignalGP (GECCO 2018)"
-output: 
-  html_document: 
+output:
+  html_document:
     keep_md: yes
     toc: true
     toc_float: true
@@ -12,18 +12,18 @@ output:
 ---
 
 ## Overview
-Here, we analyze the experimental results from our GECCO 2018 paper, "Evolving Event-driven Programs with SignalGP" (Lalejini and Ofria, 2018). 
+Here, we analyze the experimental results from our GECCO 2018 paper, "Evolving Event-driven Programs with SignalGP" (Lalejini and Ofria, 2018).
 
 ### (just a little) Background
-Our paper introduces SignalGP, a new genetic programming (GP) technique designed to provide evolution access to the [event-driven programming paradigm](https://en.wikipedia.org/wiki/Event-driven_programming). Additionally, we use SignalGP to demonstrate the value of evolving event-driven programs by evolving fully event-driven SignalGP programs and imperative variants of SignalGP programs to solve two problems: the changing environment problem and the distributed leader election problem. This document fully details the data analyses performed to analyze our experimental results for both of these problems. 
+Our paper introduces SignalGP, a new genetic programming (GP) technique designed to provide evolution access to the [event-driven programming paradigm](https://en.wikipedia.org/wiki/Event-driven_programming). Additionally, we use SignalGP to demonstrate the value of evolving event-driven programs by evolving fully event-driven SignalGP programs and imperative variants of SignalGP programs to solve two problems: the changing environment problem and the distributed leader election problem. This document fully details the data analyses performed to analyze our experimental results for both of these problems.
 
 For the full context of these analyses, a detailed description of our experimental design, and musings on SignalGP, see our paper (Lalejini and Ofria, 2018). A pre-print can be found [here](https://arxiv.org/pdf/1804.05445.pdf).
 
 ## Source Code
-The GitHub repository that contains the source code for this document and our experiments can be found here: [https://github.com/amlalejini/GECCO-2018-Evolving-Event-driven-Programs-with-SignalGP](https://github.com/amlalejini/GECCO-2018-Evolving-Event-driven-Programs-with-SignalGP). 
+The GitHub repository that contains the source code for this document and our experiments can be found here: [https://github.com/amlalejini/GECCO-2018-Evolving-Event-driven-Programs-with-SignalGP](https://github.com/amlalejini/GECCO-2018-Evolving-Event-driven-Programs-with-SignalGP).
 
 ## Dependencies & General Setup
-If you haven't noticed already, this is an R markdown file. We used `r version["version.string"]` for all statistical analyses (R Core Team, 2016). 
+If you haven't noticed already, this is an R markdown file. We used `r version["version.string"]` for all statistical analyses (R Core Team, 2016).
 
 All Dunn's tests were performed using the FSA package (Ogle, 2017).
 ```{r, echo=TRUE}
@@ -40,7 +40,7 @@ use_python("/anaconda3/bin/python")
 knitr::knit_engines$set(python = reticulate::eng_python)
 ```
 
-All visualizations use the seaborn Python package (Waskom et al., 2017), which wraps Python's matplotlib library, providing a "high-level interface for drawing attractive statistical graphics". 
+All visualizations use the seaborn Python package (Waskom et al., 2017), which wraps Python's matplotlib library, providing a "high-level interface for drawing attractive statistical graphics".
 ```{python}
 import seaborn as sns
 import matplotlib.pyplot as plt
@@ -56,39 +56,39 @@ import pandas as pd
 
 ## Problem: Changing Environment
 ### Description
-The changing environment problem is a toy problem to test GP programs' capacity to respond appropriately to environmental signals. The changing environment problem is explicitly designed to be solved using the event-driven paradigm. Thus, under-performance by imperative SignalGP variants was expected. 
+The changing environment problem is a toy problem to test GP programs' capacity to respond appropriately to environmental signals. The changing environment problem is explicitly designed to be solved using the event-driven paradigm. Thus, under-performance by imperative SignalGP variants was expected.
 
 From our paper (Lalejini and Ofria, 2018):
 
-> The changing environment problem requires agents to coordinate to coordinate their behavior with a randomly changing environment. The environment can be in one of _K_ possible states; to maximize fitness, agents must match their internal state to the current state of the environment. The environment is initialized to a random state and has a 12.5% chance of changing to a random state at every subsequent time step. Successful agents must adjust their internal state whenever an environmental change occurs. 
+> The changing environment problem requires agents to coordinate to coordinate their behavior with a randomly changing environment. The environment can be in one of _K_ possible states; to maximize fitness, agents must match their internal state to the current state of the environment. The environment is initialized to a random state and has a 12.5% chance of changing to a random state at every subsequent time step. Successful agents must adjust their internal state whenever an environmental change occurs.
 
-Agents adjust their internal state by executing on of _K_ state-altering instructions. Thus, to be successful, agents must monitor the environment state while adjusting their internal state as appropriate. 
+Agents adjust their internal state by executing on of _K_ state-altering instructions. Thus, to be successful, agents must monitor the environment state while adjusting their internal state as appropriate.
 
-To explore the value of giving evolution access to the event-driven programming paradigm, we compared the performance of programs with three different mechanisms for sensing the environment: 
+To explore the value of giving evolution access to the event-driven programming paradigm, we compared the performance of programs with three different mechanisms for sensing the environment:
 
 1. an **event-driven treatment** where environmental changes produce signals that have environment-specific tags and can trigger SignalGP program functions
 2. an **imperative control** where programs need to actively poll the environment to determine its state (using _K_ sensory instructions to test if the environment is in a particular state)
 3. a **combined treatment** where agents are capable of using environmental signals or actively polling the environment
 
 We evolved SignalGP agents to solve the changing environment problem at _K_ equal to 2, 4, 8, and 16 environmental states. The changing environment problem is designed to scale in difficulty as the number of environments increases.
-We ran 100 replicate populations of each treatment at _K_ equal to 2, 4, 8, and 16 environmental states. In all replicates and across all treatments, we evolved populations of 1000 agents for 10,000 generations, starting from a simple ancestor program. 
+We ran 100 replicate populations of each treatment at _K_ equal to 2, 4, 8, and 16 environmental states. In all replicates and across all treatments, we evolved populations of 1000 agents for 10,000 generations, starting from a simple ancestor program.
 
 ### Statistical Methods
 For every run, we extracted the program with the highest fitness after 10,000 generations of evolution. To account for environmental stochasticity, we tested each program 100 times, using a program's average performance as its fitness in our analyses. For each environmental size, we compared the performances of evolved programs across treatments. For our analyses, we set our significance level, $\alpha$, to:
 ```{r, echo=TRUE}
 sig_level <- 0.05
 ```
-To determine if any of the treatments were significant within a set (_p_ < `r sig_level`), we performed a [Kruskall-Wallis rank sum test](https://en.wikipedia.org/wiki/Kruskal%E2%80%93Wallis_one-way_analysis_of_variance). For a set in which the Kruskal-Wallis test was significant, we performed a post-hoc Dunn's test, applying a Bonferroni correction for multiple comparisons. 
+To determine if any of the treatments were significant within a set (_p_ < `r sig_level`), we performed a [Kruskall-Wallis rank sum test](https://en.wikipedia.org/wiki/Kruskal%E2%80%93Wallis_one-way_analysis_of_variance). For a set in which the Kruskal-Wallis test was significant, we performed a post-hoc Dunn's test, applying a Bonferroni correction for multiple comparisons.
 
 ### Results
-Finally, enough with all of that mumbo-jumbo explanation stuff! Results! Pretty pictures! P values or whatever! 
+Finally, enough with all of that mumbo-jumbo explanation stuff! Results! Pretty pictures! P values or whatever!
 
 But, before all that, we'll load in our data:
 ```{r}
-chgenv_data <- read.csv("../data/chg_env/mt_final_fitness.csv")
+chgenv_data <- read.csv("data/chg_env/mt_final_fitness.csv")
 ```
 
-A note about how treatments are named within the data: treatment names describe the parameters and their values used when running the experiment. Parameters and their values are adjacent in the name, and parameter-value combinations are separated by underscores. For example, ED1_AS1_ENV2_TSK0 indicates that event-driven (ED) signals were enabled (1), active sensors (AS) were enabled (1), and there were two environments states. In other words, ED1_AS1_ENV2_TSK0 indicates the two-state environment combined treatment. The trailing TSK0 can be ignored. 
+A note about how treatments are named within the data: treatment names describe the parameters and their values used when running the experiment. Parameters and their values are adjacent in the name, and parameter-value combinations are separated by underscores. For example, ED1_AS1_ENV2_TSK0 indicates that event-driven (ED) signals were enabled (1), active sensors (AS) were enabled (1), and there were two environments states. In other words, ED1_AS1_ENV2_TSK0 indicates the two-state environment combined treatment. The trailing TSK0 can be ignored.
 
 #### Two-state Environment
 Let's partition out the two-state environment data:
@@ -121,22 +121,22 @@ with sns.axes_style("darkgrid"):
   ax1 = plt.subplot2grid((1,12), (0,0), colspan=12)
   p1 = sns.boxplot(x="treatment", y="fitness", data=r.chgenv_s2_data, ax=ax1, orient="v", order=order_2)
   sns.swarmplot(x="treatment", y="fitness", data=r.chgenv_s2_data, ax=ax1, color=".1", orient="v", order=order_2)
-  
+
   ax1.set_xticklabels(labels)
   ax1.set_xlabel("Treatment")
-  
+
   ax1.set_ylabel("Fitness")
   ax1.set_ylim(min_fitness, max_fitness + 10)
-  
+
   for tick in ax1.get_yticklabels():
     tick.set_fontsize(y_tick_fs)
-  
+
   for tick in ax1.get_xticklabels():
     tick.set_fontsize(x_tick_fs)
-  
+
   ax1.yaxis.label.set_fontsize(y_label_fs)
   ax1.xaxis.label.set_fontsize(x_label_fs)
-  
+
 plt.show()
 
 ```
@@ -160,40 +160,40 @@ chgenv_s2_dt
 chgenv_name_mapping = {"ED1_AS0": "Event-driven", "ED0_AS1": "Imperative", "ED1_AS1": "Combined"}
 def PrintDT(dt_results, comps, labels):
   pretty_comps = [comp for comp in comps]
-  
+
   for label in labels:
     for ci in range(0, len(pretty_comps)):
       pretty_comps[ci] = " ".join([labels[label] if label in word else word for word in pretty_comps[ci].split(" ")])
-  
+
   padj = dt_results["res"]["P.adj"]
   z = dt_results["res"]["Z"]
-  
+
   sig = [i for i in range(0, len(comps)) if padj[i] < r.sig_level]
   notsig = [i for i in range(0, len(comps)) if padj[i] >= r.sig_level]
-  
+
   print("===== Significant comparisons: =====")
   for i in sig:
     print("{}\n  adjusted p-value: {}\n  Z statistic: {}".format(pretty_comps[i], padj[i], z[i]))
-  
+
   print("===== Not significant comparisons: =====")
   for i in notsig:
     print("{}\n adjusted p-value: {}\n Z statistic: {}".format(pretty_comps[i], padj[i], z[i]))
-  
+
 ```
 
-We'll use some Python code (most of which is under the hood of this document; check out the source code on Git to stare directly into the sun) to pretty-print our Dunn's test results. 
+We'll use some Python code (most of which is under the hood of this document; check out the source code on Git to stare directly into the sun) to pretty-print our Dunn's test results.
 ```{python, echo=FALSE}
 PrintDT(r.chgenv_s2_dt, r.chgenv_s2_dt_comps, labels=chgenv_name_mapping)
 ```
 
-What we saw in the boxplot is confirmed: the imperative treatment produced significantly lower performing than the combined or event-driven treatment. 
+What we saw in the boxplot is confirmed: the imperative treatment produced significantly lower performing than the combined or event-driven treatment.
 
 ##### Teasing Apart the Combined Treatment
-In the combined treatment, evolution had access to both the event-driven (signal-based) strategy and the imperative (sensor-polling) strategy. As shown above, performance in the event-driven and combined treatments did not significantly differ. However, this result along does not reveal what strategies were favored in the combined treatment. 
+In the combined treatment, evolution had access to both the event-driven (signal-based) strategy and the imperative (sensor-polling) strategy. As shown above, performance in the event-driven and combined treatments did not significantly differ. However, this result along does not reveal what strategies were favored in the combined treatment.
 
 To tease this apart, we re-evaluated programs evolved under the combined treatment in two distinct conditions: one in which we deactivated polling sensors and one in which we prevented environment change signals from triggering functions in SignalGP functions.
 
-First, we'll extract the relevant data. 
+First, we'll extract the relevant data.
 ```{r, echo=TRUE}
 chgenv_s2_comb_data <- chgenv_data[grep("ED1_AS1_ENV2_", chgenv_data$treatment),]
 ```
@@ -220,26 +220,26 @@ with sns.axes_style("darkgrid"):
   ax1 = plt.subplot2grid((1,12), (0,0), colspan=12)
   p1 = sns.boxplot(x="analysis", y="fitness", data=r.chgenv_s2_comb_data, ax=ax1, orient="v", order=xorder)
   sns.swarmplot(x="analysis", y="fitness", data=r.chgenv_s2_comb_data, ax=ax1, color=".1", orient="v", order=xorder)
-  
+
   ax1.set_xticklabels(labels)
   ax1.set_xlabel("Analysis")
-  
+
   ax1.set_ylabel("Fitness")
   ax1.set_ylim(min_fitness, max_fitness + 10)
-  
+
   for tick in ax1.get_yticklabels():
     tick.set_fontsize(y_tick_fs)
-  
+
   for tick in ax1.get_xticklabels():
     tick.set_fontsize(x_tick_fs)
-  
+
   ax1.yaxis.label.set_fontsize(y_label_fs)
   ax1.xaxis.label.set_fontsize(x_label_fs)
-  
+
 plt.show()
 ```
 
-When we take away signals, performance decreases; however, when we take away sensors, there's no effect. 
+When we take away signals, performance decreases; however, when we take away sensors, there's no effect.
 
 Stats to confirm!
 
@@ -259,7 +259,7 @@ chgenv_s2_comb_dt
 Yup!
 
 #### Four-state Environment
-**Spoiler alert!** The four-, eight-, and sixteen- state environments are all pretty much the same story as the two-state environment. I'm going to cut out most of the commentary for the rest of these results. 
+**Spoiler alert!** The four-, eight-, and sixteen- state environments are all pretty much the same story as the two-state environment. I'm going to cut out most of the commentary for the rest of these results.
 
 Let's partition out the four-state environment data:
 ```{r}
@@ -291,22 +291,22 @@ with sns.axes_style("darkgrid"):
   ax1 = plt.subplot2grid((1,12), (0,0), colspan=12)
   p1 = sns.boxplot(x="treatment", y="fitness", data=r.chgenv_s4_fdom_data, ax=ax1, orient="v", order=orderx)
   sns.swarmplot(x="treatment", y="fitness", data=r.chgenv_s4_fdom_data, ax=ax1, color=".1", orient="v", order=orderx)
-  
+
   ax1.set_xticklabels(labels)
   ax1.set_xlabel("Treatment")
-  
+
   ax1.set_ylabel("Fitness")
   ax1.set_ylim(min_fitness, max_fitness + 10)
-  
+
   for tick in ax1.get_yticklabels():
     tick.set_fontsize(y_tick_fs)
-  
+
   for tick in ax1.get_xticklabels():
     tick.set_fontsize(x_tick_fs)
-  
+
   ax1.yaxis.label.set_fontsize(y_label_fs)
   ax1.xaxis.label.set_fontsize(x_label_fs)
-  
+
 plt.show()
 
 ```
@@ -332,11 +332,11 @@ PrintDT(r.chgenv_s4_fdom_dt, r.chgenv_s4_fdom_dt_comps, labels=chgenv_name_mappi
 ```
 
 ##### Teasing Apart the Combined Treatment
-In the combined treatment, evolution had access to both the event-driven (signal-based) strategy and the imperative (sensor-polling) strategy. As shown above, performance in the event-driven and combined treatments did not significantly differ. However, this result along does not reveal what strategies were favored in the combined treatment. 
+In the combined treatment, evolution had access to both the event-driven (signal-based) strategy and the imperative (sensor-polling) strategy. As shown above, performance in the event-driven and combined treatments did not significantly differ. However, this result along does not reveal what strategies were favored in the combined treatment.
 
 To tease this apart, we re-evaluated programs evolved under the combined treatment in two distinct conditions: one in which we deactivated polling sensors and one in which we prevented environment change signals from triggering functions in SignalGP functions.
 
-First, we'll extract the relevant data. 
+First, we'll extract the relevant data.
 ```{r, echo=TRUE}
 chgenv_s4_comb_data <- chgenv_data[grep("ED1_AS1_ENV4_", chgenv_data$treatment),]
 ```
@@ -363,26 +363,26 @@ with sns.axes_style("darkgrid"):
   ax1 = plt.subplot2grid((1,12), (0,0), colspan=12)
   p1 = sns.boxplot(x="analysis", y="fitness", data=r.chgenv_s4_comb_data, ax=ax1, orient="v", order=xorder)
   sns.swarmplot(x="analysis", y="fitness", data=r.chgenv_s4_comb_data, ax=ax1, color=".1", orient="v", order=xorder)
-  
+
   ax1.set_xticklabels(labels)
   ax1.set_xlabel("Analysis")
-  
+
   ax1.set_ylabel("Fitness")
   ax1.set_ylim(min_fitness, max_fitness + 10)
-  
+
   for tick in ax1.get_yticklabels():
     tick.set_fontsize(y_tick_fs)
-  
+
   for tick in ax1.get_xticklabels():
     tick.set_fontsize(x_tick_fs)
-  
+
   ax1.yaxis.label.set_fontsize(y_label_fs)
   ax1.xaxis.label.set_fontsize(x_label_fs)
-  
+
 plt.show()
 ```
 
-When we take away signals, performance decreases; however, when we take away sensors, there's no effect. 
+When we take away signals, performance decreases; however, when we take away sensors, there's no effect.
 
 Stats to confirm!
 
@@ -431,22 +431,22 @@ with sns.axes_style("darkgrid"):
   ax1 = plt.subplot2grid((1,12), (0,0), colspan=12)
   p1 = sns.boxplot(x="treatment", y="fitness", data=r.chgenv_s8_fdom_data, ax=ax1, orient="v", order=orderx)
   sns.swarmplot(x="treatment", y="fitness", data=r.chgenv_s8_fdom_data, ax=ax1, color=".1", orient="v", order=orderx)
-  
+
   ax1.set_xticklabels(labels)
   ax1.set_xlabel("Treatment")
-  
+
   ax1.set_ylabel("Fitness")
   ax1.set_ylim(min_fitness, max_fitness + 10)
-  
+
   for tick in ax1.get_yticklabels():
     tick.set_fontsize(y_tick_fs)
-  
+
   for tick in ax1.get_xticklabels():
     tick.set_fontsize(x_tick_fs)
-  
+
   ax1.yaxis.label.set_fontsize(y_label_fs)
   ax1.xaxis.label.set_fontsize(x_label_fs)
-  
+
 plt.show()
 
 ```
@@ -472,11 +472,11 @@ PrintDT(r.chgenv_s8_fdom_dt, r.chgenv_s8_fdom_dt_comps, labels=chgenv_name_mappi
 ```
 
 ##### Teasing Apart the Combined Treatment
-In the combined treatment, evolution had access to both the event-driven (signal-based) strategy and the imperative (sensor-polling) strategy. As shown above, performance in the event-driven and combined treatments did not significantly differ. However, this result along does not reveal what strategies were favored in the combined treatment. 
+In the combined treatment, evolution had access to both the event-driven (signal-based) strategy and the imperative (sensor-polling) strategy. As shown above, performance in the event-driven and combined treatments did not significantly differ. However, this result along does not reveal what strategies were favored in the combined treatment.
 
 To tease this apart, we re-evaluated programs evolved under the combined treatment in two distinct conditions: one in which we deactivated polling sensors and one in which we prevented environment change signals from triggering functions in SignalGP functions.
 
-First, we'll extract the relevant data. 
+First, we'll extract the relevant data.
 ```{r, echo=TRUE}
 chgenv_s8_comb_data <- chgenv_data[grep("ED1_AS1_ENV8_", chgenv_data$treatment),]
 ```
@@ -503,26 +503,26 @@ with sns.axes_style("darkgrid"):
   ax1 = plt.subplot2grid((1,12), (0,0), colspan=12)
   p1 = sns.boxplot(x="analysis", y="fitness", data=r.chgenv_s8_comb_data, ax=ax1, orient="v", order=xorder)
   sns.swarmplot(x="analysis", y="fitness", data=r.chgenv_s8_comb_data, ax=ax1, color=".1", orient="v", order=xorder)
-  
+
   ax1.set_xticklabels(labels)
   ax1.set_xlabel("Analysis")
-  
+
   ax1.set_ylabel("Fitness")
   ax1.set_ylim(min_fitness, max_fitness + 10)
-  
+
   for tick in ax1.get_yticklabels():
     tick.set_fontsize(y_tick_fs)
-  
+
   for tick in ax1.get_xticklabels():
     tick.set_fontsize(x_tick_fs)
-  
+
   ax1.yaxis.label.set_fontsize(y_label_fs)
   ax1.xaxis.label.set_fontsize(x_label_fs)
-  
+
 plt.show()
 ```
 
-When we take away signals, performance crashes hard; however, when we take away sensors, there's no effect. 
+When we take away signals, performance crashes hard; however, when we take away sensors, there's no effect.
 
 Stats to confirm!
 
@@ -572,29 +572,29 @@ with sns.axes_style("darkgrid"):
   ax1 = plt.subplot2grid((1,12), (0,0), colspan=12)
   p1 = sns.boxplot(x="treatment", y="fitness", data=r.chgenv_s16_fdom_data, ax=ax1, orient="v", order=orderx)
   sns.swarmplot(x="treatment", y="fitness", data=r.chgenv_s16_fdom_data, ax=ax1, color=".1", orient="v", order=orderx)
-  
+
   ax1.set_xticklabels(labels)
   ax1.set_xlabel("Treatment")
-  
+
   ax1.set_ylabel("Fitness")
   ax1.set_ylim(min_fitness, max_fitness + 10)
-  
+
   for tick in ax1.get_yticklabels():
     tick.set_fontsize(y_tick_fs)
-  
+
   for tick in ax1.get_xticklabels():
     tick.set_fontsize(x_tick_fs)
-  
+
   ax1.yaxis.label.set_fontsize(y_label_fs)
   ax1.xaxis.label.set_fontsize(x_label_fs)
-  
+
 plt.show()
 
 ```
 
-From the boxplot, the event-driven and combined treatments produce higher-performing programs than the imperative treatment. 
+From the boxplot, the event-driven and combined treatments produce higher-performing programs than the imperative treatment.
 
-**NOTE:** Since running this experiment (and submitting the associated paper), I've done a bit more parameter exploration with SignalGP. The performance of the event-driven and combined treatments suffered from an astronomically high tag mutation rate. In subsequent work, I've lowered the tag mutation rate, and SignalGP can easily solve the 16-state environment in 10K generations. 
+**NOTE:** Since running this experiment (and submitting the associated paper), I've done a bit more parameter exploration with SignalGP. The performance of the event-driven and combined treatments suffered from an astronomically high tag mutation rate. In subsequent work, I've lowered the tag mutation rate, and SignalGP can easily solve the 16-state environment in 10K generations.
 
 First, we'll do a Kruskal-Wallis test to confirm that at least one of the treatments within the set is different from the others.
 ```{r, echo=TRUE}
@@ -615,11 +615,11 @@ PrintDT(r.chgenv_s16_fdom_dt, r.chgenv_s16_fdom_dt_comps, labels=chgenv_name_map
 ```
 
 ##### Teasing Apart the Combined Treatment
-In the combined treatment, evolution had access to both the event-driven (signal-based) strategy and the imperative (sensor-polling) strategy. As shown above, performance in the event-driven and combined treatments did not significantly differ. However, this result along does not reveal what strategies were favored in the combined treatment. 
+In the combined treatment, evolution had access to both the event-driven (signal-based) strategy and the imperative (sensor-polling) strategy. As shown above, performance in the event-driven and combined treatments did not significantly differ. However, this result along does not reveal what strategies were favored in the combined treatment.
 
 To tease this apart, we re-evaluated programs evolved under the combined treatment in two distinct conditions: one in which we deactivated polling sensors and one in which we prevented environment change signals from triggering functions in SignalGP functions.
 
-First, we'll extract the relevant data. 
+First, we'll extract the relevant data.
 ```{r, echo=TRUE}
 chgenv_s16_comb_data <- chgenv_data[grep("ED1_AS1_ENV16_", chgenv_data$treatment),]
 ```
@@ -646,26 +646,26 @@ with sns.axes_style("darkgrid"):
   ax1 = plt.subplot2grid((1,12), (0,0), colspan=12)
   p1 = sns.boxplot(x="analysis", y="fitness", data=r.chgenv_s16_comb_data, ax=ax1, orient="v", order=xorder)
   sns.swarmplot(x="analysis", y="fitness", data=r.chgenv_s16_comb_data, ax=ax1, color=".1", orient="v", order=xorder)
-  
+
   ax1.set_xticklabels(labels)
   ax1.set_xlabel("Analysis")
-  
+
   ax1.set_ylabel("Fitness")
   ax1.set_ylim(min_fitness, max_fitness + 10)
-  
+
   for tick in ax1.get_yticklabels():
     tick.set_fontsize(y_tick_fs)
-  
+
   for tick in ax1.get_xticklabels():
     tick.set_fontsize(x_tick_fs)
-  
+
   ax1.yaxis.label.set_fontsize(y_label_fs)
   ax1.xaxis.label.set_fontsize(x_label_fs)
-  
+
 plt.show()
 ```
 
-When we take away signals, performance crashes hard; however, when we take away sensors, there's no effect. 
+When we take away signals, performance crashes hard; however, when we take away sensors, there's no effect.
 
 Stats to confirm!
 
@@ -689,32 +689,32 @@ chgenv_s16_comb_dt
 
 ### Description
 From our paper (Lalejini and Ofria, 2018):
-> In the distributed leader election problem, a network of agents must unanimously designate a single agent as leader. Agents are each given a unique identifer (UID). Initially, agents are only aware of their own UID and must communicate to resolve the UIDs of other agents. During an election, each agent may vote, and an election is successful if all votes converge to a single, consensus UID. 
+> In the distributed leader election problem, a network of agents must unanimously designate a single agent as leader. Agents are each given a unique identifer (UID). Initially, agents are only aware of their own UID and must communicate to resolve the UIDs of other agents. During an election, each agent may vote, and an election is successful if all votes converge to a single, consensus UID.
 
-We evolved populations of homogeneous distributed systems of SignalGP agents where networks were configured as 5x5 toroidal grids, and agents could only interact with their four neighbors. Distrubed systems maximize their fitness by achieving consensus as quickly as possible and maintaining consensus for the duration of the evaluation (see paper for exact fitness function used). We reward partial solutions by taking into account valid votes and partial consensus at the end of an evaluation. 
+We evolved populations of homogeneous distributed systems of SignalGP agents where networks were configured as 5x5 toroidal grids, and agents could only interact with their four neighbors. Distrubed systems maximize their fitness by achieving consensus as quickly as possible and maintaining consensus for the duration of the evaluation (see paper for exact fitness function used). We reward partial solutions by taking into account valid votes and partial consensus at the end of an evaluation.
 
 We evolved distributed systems in three treatments:
 
-1. one with event-driven messaging where messages were signals (events) that could trigger a SignalGP program function when received 
+1. one with event-driven messaging where messages were signals (events) that could trigger a SignalGP program function when received
 2. imperative messaging with fork on message
 3. imperative messaging without fork on message
 
-Treatments 2 and 3 were imperative variants; see paper for exact details on the differences between the two. 
+Treatments 2 and 3 were imperative variants; see paper for exact details on the differences between the two.
 
-We evolved 100 replicate populations (size of 400 distributed systems) of each treatment for 50,000 generations, starting from a simple ancestor program. 
+We evolved 100 replicate populations (size of 400 distributed systems) of each treatment for 50,000 generations, starting from a simple ancestor program.
 
 ### Statistical Methods
-For every replicate across all treatments we extracted the program that produced the most fit distributed system after 50,000 generations of evolution. We compared the performances of evolved programs across treatments. For our analyses, we set our significance level, α, equal to `r sig_level`. To determine if any of the treatments were significant within a set (_p_ < `r sig_level`), we performed a Kruskal-Wallis rank sum test. For a set in which the Kruskal-Wallis test was significant, we performed a post-hoc Dunn's test, applying a Bonferroni correction for multiple comparisons. 
+For every replicate across all treatments we extracted the program that produced the most fit distributed system after 50,000 generations of evolution. We compared the performances of evolved programs across treatments. For our analyses, we set our significance level, α, equal to `r sig_level`. To determine if any of the treatments were significant within a set (_p_ < `r sig_level`), we performed a Kruskal-Wallis rank sum test. For a set in which the Kruskal-Wallis test was significant, we performed a post-hoc Dunn's test, applying a Bonferroni correction for multiple comparisons.
 
 ### Results
 
-Let's load the election results in using R. 
+Let's load the election results in using R.
 ```{r, echo=TRUE}
 election_data <- read.csv("../data/election/final_fitness.csv")
 election_data_overtime <- read.csv("../data/election/fitness_over_time.csv")
 ```
 
-Visualize! 
+Visualize!
 
 ```{python, echo=FALSE}
 # Some constants
@@ -737,22 +737,22 @@ with sns.axes_style("darkgrid"):
   ax1 = plt.subplot2grid((1,12), (0,0), colspan=12)
   p1 = sns.boxplot(x="treatment", y="max_fitness", data=r.election_data, ax=ax1, orient="v", order=orderx)
   sns.swarmplot(x="treatment", y="max_fitness", data=r.election_data, ax=ax1, color=".1", orient="v", order=orderx)
-  
+
   ax1.set_xticklabels(labels)
   ax1.set_xlabel("Treatment")
-  
+
   ax1.set_ylabel("Fitness")
   ax1.set_ylim(min_fitness, max_fitness + 10)
-  
+
   for tick in ax1.get_yticklabels():
     tick.set_fontsize(y_tick_fs)
-  
+
   for tick in ax1.get_xticklabels():
     tick.set_fontsize(x_tick_fs)
-  
+
   ax1.yaxis.label.set_fontsize(y_label_fs)
   ax1.xaxis.label.set_fontsize(x_label_fs)
-  
+
 plt.show()
 ```
 
@@ -779,26 +779,26 @@ with sns.axes_style("darkgrid"):
   ax1 = plt.subplot2grid((1,12), (0,0), colspan=12)
   ploty = sns.tsplot(data=r.election_data_overtime, time="update", unit="run_id", err_style="ci_band",
            condition="treatment", value="max_fitness", ax = ax1, legend = False, ci=95)
-  
+
   ax1.set_xticklabels([i for i in range(0, 50001, 10000)], rotation = 45)
   ax1.set_xlabel("Treatment")
-  
+
   ax1.set_ylabel("Fitness")
   ax1.set_ylim(min_fitness, max_fitness + 10)
-  
+
   for tick in ax1.get_yticklabels():
     tick.set_fontsize(y_tick_fs)
-  
+
   for tick in ax1.get_xticklabels():
     tick.set_fontsize(x_tick_fs)
-  
+
   ax1.yaxis.label.set_fontsize(y_label_fs)
   ax1.xaxis.label.set_fontsize(x_label_fs)
-  
+
 plt.show()
 ```
 
-From the visualizations, it looks like the event-driven treatment outperforms (just a little) the imperative treatments. 
+From the visualizations, it looks like the event-driven treatment outperforms (just a little) the imperative treatments.
 
 First, we'll do a Kruskal-Wallis test to confirm that at least one of the treatments within the set is different from the others.
 ```{r, echo=TRUE}
@@ -812,9 +812,323 @@ elec_dt <- dunnTest(max_fitness~treatment, data=election_data, method="bonferron
 elec_dt
 ```
 
-According to our Dunn's test, the event-driven treatment produced programs that significantly outperformed those evolved in both imperative treatments. Note, all treatments produced programs able to solve the distrubed leader election problem (no surprise since this problem is well-studied and previous work has used imperative LGP to evolve solutions). The difference in performance has to do with the efficiency at which event-driven programs are able to communicate with one another, not needing to check for received messages. 
+According to our Dunn's test, the event-driven treatment produced programs that significantly outperformed those evolved in both imperative treatments. Note, all treatments produced programs able to solve the distrubed leader election problem (no surprise since this problem is well-studied and previous work has used imperative LGP to evolve solutions). The difference in performance has to do with the efficiency at which event-driven programs are able to communicate with one another, not needing to check for received messages.
 
 ---
+
+## Thesis figures
+
+Regerated figures for dissertation chapter.
+
+```{r, message=FALSE}
+library(ggplot2)
+library(tidyverse)
+library(cowplot)
+library(RColorBrewer)
+library(viridis)
+source("https://gist.githubusercontent.com/benmarwick/2a1bb0133ff568cbe28d/raw/fb53bd97121f7f9ce947837ef1a4c65a73bffb3f/geom_flat_violin.R")
+```
+
+```{r}
+cb_palette <- "Set2"
+theme_set(theme_cowplot())
+```
+
+### Changing environment problem
+
+```{r}
+# chgenv_data
+
+get_problem <- function(treatment_id) {
+  # print(grep("_ENV2_", treatment_id))
+  if (grepl("_ENV2_", treatment_id, fixed=TRUE)) {
+    return("Two-state Environment")
+  } else if (grepl("_ENV4_", treatment_id, fixed=TRUE)) {
+    return("Four-state Environment")
+  } else if (grepl("_ENV8_", treatment_id, fixed=TRUE)) {
+    return("Eight-state Environment")
+  } else if (grepl("_ENV16_", treatment_id, fixed=TRUE)) {
+    return("Sixteen-state Environment")
+  } else {
+    return("unknown")
+  }
+}
+
+get_condition <- function(treatment_id) {
+  # 'Imperative', "Event-driven", 'Combined'
+  if (grepl("ED0_AS1", treatment_id, fixed=TRUE)) {
+    return("Imperative")
+  } else if (grepl("ED1_AS0", treatment_id, fixed=TRUE)) {
+    return("Event-driven")
+  } else if (grepl("ED1_AS1", treatment_id, fixed=TRUE)) {
+    return("Combined")
+  } else {
+      return("unknown")
+  }
+}
+
+# Label problems from treatment id
+chgenv_data$problem <- mapply(
+  get_problem,
+  chgenv_data$treatment
+)
+chgenv_data$problem <- factor(
+  chgenv_data$problem,
+  levels=c(
+    "Two-state Environment",
+    "Four-state Environment",
+    "Eight-state Environment",
+    "Sixteen-state Environment"
+  )
+)
+
+# Label condition from treatment id
+chgenv_data$condition <- mapply(
+  get_condition,
+  chgenv_data$treatment
+)
+chgenv_data$condition <- factor(
+  chgenv_data$condition,
+  levels=c(
+    "Imperative",
+    "Event-driven",
+    "Combined"
+  )
+)
+
+```
+
+#### Final performance
+
+```{r}
+ggplot(
+    filter(chgenv_data, analysis=="fdom"),
+    aes(x=condition, y=fitness, fill=condition)
+  ) +
+  geom_flat_violin(
+    position = position_nudge(x = .2, y = 0),
+    alpha = .8
+  ) +
+  geom_point(
+    mapping=aes(color=condition),
+    position = position_jitter(width = .15),
+    size = .5,
+    alpha = 0.8
+  ) +
+  geom_boxplot(
+    width = .1,
+    outlier.shape = NA,
+    alpha = 0.5
+  ) +
+  scale_x_discrete(
+    name="Condition"
+  ) +
+  scale_y_continuous(
+    name="Fitness",
+    limits=c(0, 260),
+    breaks=c(0, 50, 100, 150, 200, 250)
+  ) +
+  scale_fill_brewer(
+    palette=cb_palette
+  ) +
+  scale_color_brewer(
+    palette=cb_palette
+  ) +
+  facet_wrap(
+    ~problem,
+    nrow=1
+  ) +
+  theme(
+    legend.position="none",
+    axis.text=element_text(size=10)
+  ) +
+  ggsave("chg-env-fitness.pdf", width=12, height=6)
+```
+
+#### Changing environment knockout performance
+
+```{r}
+ggplot(
+    filter(chgenv_data, condition=="Combined"),
+    aes(x=analysis, y=fitness, fill=analysis)
+  ) +
+  geom_flat_violin(
+    position = position_nudge(x = .2, y = 0),
+    alpha = .8
+  ) +
+  geom_point(
+    mapping=aes(color=analysis),
+    position = position_jitter(width = .15),
+    size = .5,
+    alpha = 0.8
+  ) +
+  geom_boxplot(
+    width = .1,
+    outlier.shape = NA,
+    alpha = 0.5
+  ) +
+  scale_x_discrete(
+    name="Analysis",
+    breaks=c("fdom", "no_sensors", "no_signals"),
+    limits=c("fdom", "no_sensors", "no_signals"),
+    labels=c("Base", "No Sensors", "No Events")
+  ) +
+  scale_y_continuous(
+    name="Fitness",
+    limits=c(-1, 260),
+    breaks=c(0, 50, 100, 150, 200, 250)
+  ) +
+  scale_fill_brewer(
+    palette="Paired"
+  ) +
+  scale_color_brewer(
+    palette="Paired"
+  ) +
+  facet_wrap(
+    ~problem,
+    nrow=1
+  ) +
+  theme(
+    legend.position="none",
+    axis.text=element_text(size=10)
+  ) +
+  ggsave("chg-env-combined-strategy.pdf", width=12, height=6)
+```
+
+### Distributed leader election
+
+```{r}
+election_data <- read.csv("data/election/final_fitness.csv")
+election_data_overtime <- read.csv("data/election/fitness_over_time.csv")
+
+election_data_overtime$treatment <- factor(
+  election_data_overtime$treatment,
+  levels=c("Imperative_MsgForking", "Imperative_MsgNonForking", "EventDriven_MsgForking")
+)
+```
+
+#### Final performance
+
+```{r}
+# labels =  ['Event-driven', "Imperative\n(fork-on-retr.)", 'Imperative\n(copy-on-retr.)']
+# orderx=["EventDriven_MsgForking", "Imperative_MsgForking", "Imperative_MsgNonForking"]
+
+election_final_performance_plot <- ggplot(
+    election_data,
+    aes(x=treatment, y=max_fitness, fill=treatment)
+  ) +
+  geom_flat_violin(
+    position = position_nudge(x = .2, y = 0),
+    alpha = .8
+  ) +
+  geom_point(
+    mapping=aes(color=treatment),
+    position = position_jitter(width = .15),
+    size = .5,
+    alpha = 0.8
+  ) +
+  geom_boxplot(
+    width = .1,
+    outlier.shape = NA,
+    alpha = 0.5
+  ) +
+  scale_x_discrete(
+    name="Condition",
+    breaks=c("Imperative_MsgForking", "Imperative_MsgNonForking", "EventDriven_MsgForking"),
+    limits=c("Imperative_MsgForking", "Imperative_MsgNonForking", "EventDriven_MsgForking"),
+    labels=c("Imperative\n(fork-on-retrieve)", "Imperative\n(copy-on-retrieve)", "Event-driven")
+  ) +
+  scale_y_continuous(
+    name="Fitness",
+    limits=c(-10, 7000),
+    breaks=c(0, 1000, 2000, 3000, 4000, 5000, 6000, 7000)
+  ) +
+  scale_fill_brewer(
+    palette=cb_palette,
+    breaks=c("Imperative_MsgForking", "Imperative_MsgNonForking", "EventDriven_MsgForking"),
+    limits=c("Imperative_MsgForking", "Imperative_MsgNonForking", "EventDriven_MsgForking"),
+  ) +
+  scale_color_brewer(
+    palette=cb_palette,
+    breaks=c("Imperative_MsgForking", "Imperative_MsgNonForking", "EventDriven_MsgForking"),
+    limits=c("Imperative_MsgForking", "Imperative_MsgNonForking", "EventDriven_MsgForking"),
+  ) +
+  theme(
+    legend.position="none"
+    # axis.text=element_text(size=10)
+  )
+election_final_performance_plot
+```
+
+#### Fitness over time
+
+```{r}
+# x=update
+# y=max_fitness
+election_ot_plot <- ggplot(
+    election_data_overtime,
+    aes(x=update, y=max_fitness, fill=treatment, color=treatment)
+  ) +
+  stat_summary(
+    fun.y="mean",
+    geom="line"
+  ) +
+  stat_summary(
+    fun.data="mean_cl_boot",
+    fun.args=list(conf.int=0.95),
+    geom="ribbon",
+    alpha=0.2,
+    linetype=0
+  ) +
+  scale_color_brewer(
+    name="Condition",
+    palette=cb_palette,
+    breaks=c("Imperative_MsgForking", "Imperative_MsgNonForking", "EventDriven_MsgForking"),
+    limits=c("Imperative_MsgForking", "Imperative_MsgNonForking", "EventDriven_MsgForking"),
+    labels=c("I (F)", "I (C)", "ED")
+  ) +
+  scale_fill_brewer(
+    name="Condition",
+    palette=cb_palette,
+    breaks=c("Imperative_MsgForking", "Imperative_MsgNonForking", "EventDriven_MsgForking"),
+    limits=c("Imperative_MsgForking", "Imperative_MsgNonForking", "EventDriven_MsgForking"),
+    labels=c("I (F)", "I (C)", "ED")
+  ) +
+  scale_y_continuous(
+    name="Fitness",
+    limits=c(-10, 7000),
+    breaks=c(0, 1000, 2000, 3000, 4000, 5000, 6000, 7000)
+  ) +
+  scale_x_continuous(
+    name="Time (generations)"
+  ) +
+  theme(
+    legend.position="right"
+  )
+election_ot_plot
+```
+
+```{r}
+# election_final_performance_plot
+# election_ot_plot
+grid <- plot_grid(
+  election_final_performance_plot,
+  election_ot_plot + theme(axis.ticks.y=element_blank(),axis.text.y=element_blank(),axis.title.y=element_blank()),
+  nrow=1,
+  align="h",
+  axis="l"
+)
+
+grid
+
+save_plot(
+   "election-fitness.pdf",
+   grid,
+   base_height=6,
+   base_asp=3/1
+)
+```
+
 
 ## References
 Lalejini, A., & Ofria, C. (2018). Evolving Event-driven Programs with SignalGP. In Proceedings of the Genetic and Evolutionary Computation Conference. ACM. https://doi.org/10.1145/3205455.3205523
